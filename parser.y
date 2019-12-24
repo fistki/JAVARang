@@ -996,7 +996,7 @@ boolean_term		: boolean_term OP_AND boolean_factor
 			{
 			  verifyAndOrOp( $1, AND_t, $3 );
 			  $$ = $1;
-				  char* tmp=(char*)calloc(1000,sizeof(char));
+				char* tmp=(char*)calloc(1000,sizeof(char));
 				int ChangeType=0;
 
 				strcat(tmp,ExprStack[StackCount-2]);
@@ -1562,4 +1562,8 @@ void superfree(char** str)
 	char *tmp=*str;
 	free(tmp);
 	*str=0;
+}
+
+int yywrap(){
+	return 1;
 }

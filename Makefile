@@ -4,7 +4,7 @@ CC = gcc -g
 LEX = flex
 YACC = yacc -v -t -l 
 YACCFLAG = -d
-LIBS = -lfl -lm
+LIBS = -lm
 
 .PHONY:clean
 
