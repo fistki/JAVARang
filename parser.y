@@ -62,7 +62,7 @@ void superfree(char**);
 /* tokens */
 %token ARRAY BEG BOOLEAN DEF DO ELSE END FALSE FOR INTEGER IF OF PRINT READ REAL RETURN STRING THEN TO TRUE VAR WHILE
 %token OP_ADD OP_SUB OP_MUL OP_DIV OP_MOD OP_ASSIGN OP_EQ OP_NE OP_GT OP_LT OP_GE OP_LE OP_AND OP_OR OP_NOT
-%token MK_COMMA MK_COLON MK_SEMICOLON MK_LPAREN MK_RPAREN MK_LB MK_RB
+%token MK_COMMA MK_COLON MK_SEMICOLON MK_LPAREN MK_RPAREN MK_LB MK_RB MK_LBRACE MK_RBRACE
 
 %token <lexeme>ID
 %token <intVal>INT_CONST 
@@ -87,7 +87,6 @@ program			: ID
 				strcat(b,fileName);
 				strcat(b,".j");
 				out=fopen(b,"w");
-		//	if(ExprStack[StackCount]==NULL)ExprStack[StackCount]=(char*)malloc(sizeof(char)*10000);
 			  struct PType *pType = createPType( VOID_t );
 			  struct SymNode *newNode = createProgramNode( $1, scope, pType );
 			  insertTab( symbolTable, newNode );
@@ -152,7 +151,7 @@ decl			: VAR id_list MK_COLON scalar_type MK_SEMICOLON       /* scalar type decl
 					//fprintf(out,"[%d haha]\n",scope);
 					if(scope==0)
 					{
-							if($4->type==INTEGER_t)
+						if($4->type==INTEGER_t)
 										{fprintf(out,".field public static %s I\n",ptr->value);}
 						else if(BOOLEAN_t==$4->type)
 										{fprintf(out,".field public static %s Z\n",ptr->value);}
@@ -591,8 +590,6 @@ simple_stmt		: var_ref OP_ASSIGN boolean_expr MK_SEMICOLON
 				//	superfree(&ExprStack[--StackCount]);
 			}
 			| PRINT boolean_expr MK_SEMICOLON { verifyScalarExpr( $2, "print" ); 
-												//struct expr_sem *expr=$2;
-												//fprintf(out,";[vref= %s]",)
 												dumpEStack("print");
 												fprintf(out,"getstatic java/lang/System/out Ljava/io/PrintStream; \n");
 												fprintf(out,"%s",ExprStack[--StackCount]);
@@ -609,92 +606,7 @@ simple_stmt		: var_ref OP_ASSIGN boolean_expr MK_SEMICOLON
 														fprintf(out,"invokevirtual java/io/PrintStream/print(F)V \n");	break;
 							
 												}
-													/*if($2->varRef==NULL)
-													{
-														//fprintf(out,";[const]\n");fflush(out);
-														if($2->pType->type==STRING_t)
-														{
-															//fprintf(stdout,"[%d]",$2->pType->type);
-															fprintf(out,"ldc \"%s\"\n",$2->pType->strv);
-															fprintf(out,"invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V \n");
-														}
-														else if($2->pType->type==INTEGER_t)
-														{
-															fprintf(out,"ldc %d\n",$2->pType->value);
-															fprintf(out,"invokevirtual java/io/PrintStream/print(I)V \n");	
-														}
-														else if($2->pType->type==BOOLEAN_t)
-														{
-															fprintf(out,"ldc %d\n",$2->pType->value);
-															fprintf(out,"invokevirtual java/io/PrintStream/print(Z)V \n");
-														}
-														else if($2->pType->type==REAL_t)
- 														{
-															fprintf(out,"ldc %f\n",$2->pType->value);
- 															fprintf(out,"invokevirtual java/io/PrintStream/print(F)V \n");
- 														}
-													}
 													
-													
-													else
-													{
-			
-														//fprintf(out,";[local]\n");fflush(out);
-														int shoot=0;
- 														for(i=LocalCount;i>0;i--)
- 														{
- 															if(ItemScope[i]<=scope && strcmp($2->varRef->id,LocalItem[i])==0)
- 															{
- 																shoot=i;
- 																break;
- 															}	
- 															else
- 															{
- 																//fprintf(out,";[not match! %s\t%s]\n",$2->varRef->id,LocalItem[i]);fflush(out);
- 															}
- 														}
- 														if(shoot!=0)
- 														{
- 															if($2->pType->type==INTEGER_t)
- 															{
- 																fprintf(out,"iload %d\n",shoot);
- 																fprintf(out,"invokevirtual java/io/PrintStream/print(I)V \n");
- 															}
- 															else if($2->pType->type==BOOLEAN_t)
- 															{
- 																fprintf(out,"iload %d\n",shoot);
-																fprintf(out,"invokevirtual java/io/PrintStream/print(Z)V \n");
- 															}
- 															else if($2->pType->type==REAL_t)
- 															{
-																fprintf(out,"fload %d\n",shoot);
- 																fprintf(out,"invokevirtual java/io/PrintStream/print(F)V \n");
- 															}
- 															//fprintf(out,";[finish]\n");fflush(out);
-														}	
-														else
-														{
-															struct SymNode*glo;
-															if(glo=lookupSymbol(symbolTable, $2->varRef->id, 0, __TRUE ),glo!=0)
-															{
-																if(glo->type->type==INTEGER_t)
- 																{
- 																	fprintf(out,"getstatic %s/%s I\n",fileName,glo->name);
- 																	fprintf(out,"invokevirtual java/io/PrintStream/print(I)V \n");
- 																}
- 																else if(glo->type->type==BOOLEAN_t)
- 																{
- 																	fprintf(out,"getstatic %s/%s I\n",fileName,glo->name);
-																	fprintf(out,"invokevirtual java/io/PrintStream/print(Z)V \n");
- 																}
- 																else if(glo->type->type==REAL_t)
- 																{
-																	fprintf(out,"getstatic %s/%s F\n",fileName,glo->name);
- 																	fprintf(out,"invokevirtual java/io/PrintStream/print(F)V \n");
- 																}
-															}
-														}											
-													}*/
 												
 												}
  			| READ boolean_expr MK_SEMICOLON  { verifyScalarExpr( $2, "read" ); 
@@ -996,7 +908,7 @@ boolean_term		: boolean_term OP_AND boolean_factor
 			{
 			  verifyAndOrOp( $1, AND_t, $3 );
 			  $$ = $1;
-				char* tmp=(char*)calloc(1000,sizeof(char));
+				  char* tmp=(char*)calloc(1000,sizeof(char));
 				int ChangeType=0;
 
 				strcat(tmp,ExprStack[StackCount-2]);
@@ -1563,7 +1475,7 @@ void superfree(char** str)
 	free(tmp);
 	*str=0;
 }
+int yywrap(void){
 
-int yywrap(){
 	return 1;
 }

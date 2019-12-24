@@ -24,6 +24,7 @@ lex.yy.c: lex.l
 
 clean:
 	rm -f $(TARGET) $(OBJECT)
+	
 
 run:
 	./$(TARGET) ./ReleasedPattern/semtest1.p
