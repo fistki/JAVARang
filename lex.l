@@ -59,8 +59,7 @@ identifier ({letter})({letter}|{digit})*
 "("				{ token('('); return MK_LPAREN; }
 "["				{ token('['); return MK_LB;}
 "]"				{ token(']'); return MK_RB; }
-"{"   			{ token('{');return MK_LBRACE; }
-"}"   			{ token('{');return MK_RBRACE; }
+
 "+"				{ token('+'); return OP_ADD; }
 "-"				{ token('-'); return OP_SUB; }
 "*"				{ token('*'); return OP_MUL; }
@@ -86,7 +85,7 @@ identifier ({letter})({letter}|{digit})*
 "end"				{ token("KWend"); return END; }
 "false"				{ token("KWfalse"); return FALSE; }
 "for"				{ token("KWfor"); return FOR; }
-"int"				{ token("KWinteger"); return INTEGER; }
+"integer"			{ token("KWinteger"); return INTEGER; }
 "if"				{ token("KWif"); return IF; }
 "of"				{ token("KWof"); return OF; }
 "print"				{ token("KWprint"); return PRINT; }
@@ -111,7 +110,7 @@ identifier ({letter})({letter}|{digit})*
 				//  yylval.lexeme = strdup(yytext); /* pass ID to parser */
 				  return ID; 
 				}
-{integer}		{ 
+{integer}			{ 
 				  tokenInteger("integer",atoi(yytext)); 
 				  yylval.intVal = atoi(yytext);
 				  return INT_CONST; 

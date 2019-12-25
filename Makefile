@@ -4,7 +4,7 @@ CC = gcc -g
 LEX = flex
 YACC = yacc -v -t -l 
 YACCFLAG = -d
-LIBS = -lm
+LIBS = -lfl -lm
 
 .PHONY:clean
 
@@ -24,7 +24,6 @@ lex.yy.c: lex.l
 
 clean:
 	rm -f $(TARGET) $(OBJECT)
-	
 
 run:
 	./$(TARGET) ./ReleasedPattern/semtest1.p
