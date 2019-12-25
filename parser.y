@@ -265,13 +265,14 @@ func_decl		: ID MK_LPAREN opt_param_list
 			{
 			  // check and insert parameters into symbol table
 			  paramError = insertParamIntoSymTable( symbolTable, $3, scope+1 );
-			  //fprintf(out,"");
-			  								/*struct idNode_sem*ptr;
-											for(ptr=$1;ptr->next!=NULL;ptr=ptr->next)
-											{
-												LocalItem[++LocalCount]=(char*)calloc(40,sizeof(char));
-												ItemScope[LocalCount]=scope;
-											}*/
+			 //  fprintf(out,"");
+				// struct idNode_sem*ptr;
+				// for(ptr=$1;ptr->next!=NULL;ptr=ptr->next)
+				// {
+				// 	LocalItem[++LocalCount]=(char*)calloc(40,sizeof(char));
+				// 	ItemScope[LocalCount]=scope;
+				// }
+				
 			}
 			  MK_RPAREN ret_type 
 			{
@@ -311,10 +312,10 @@ func_decl		: ID MK_LPAREN opt_param_list
 				char rettp;
 				switch($6->type)
 				{
-							case INTEGER_t: fprintf(out,"I\n"); break;
-							case BOOLEAN_t: fprintf(out,"Z\n"); break;
-							case REAL_t:    fprintf(out,"F\n"); break;
-							case VOID_t:	fprintf(out,"V\n"); break;				
+							case INTEGER_t: fprintf(out,"I\n"); LocalCount = 0; break;
+							case BOOLEAN_t: fprintf(out,"Z\n"); LocalCount = 0; break;
+							case REAL_t:    fprintf(out,"F\n"); LocalCount = 0; break;
+							case VOID_t:	fprintf(out,"V\n"); LocalCount = 0; break;				
 				
 				}
 			  
@@ -354,11 +355,10 @@ param_list		: param_list MK_SEMICOLON param
 			| param { $$ = $1; }
 			;
 
+
 param			: id_list MK_COLON type { $$ = createParam( $1, $3 ); 
-											
-											
-											
-										}
+
+					}
 			;
 
 id_list			: id_list MK_COMMA ID
@@ -1060,13 +1060,13 @@ relop_expr		: expr rel_op expr
 				}
 				lC[++lCtop]=lCount++;
 				strcat(tmp," L1_");
-				for(i=0;i<lC[lCtop];i++)strcat(tmp,"fuck");
+				for(i=0;i<lC[lCtop];i++)strcat(tmp,"sjh");
 				strcat(tmp,"\n iconst_0 \n goto L2_");
-				for(i=0;i<lC[lCtop];i++)strcat(tmp,"fuck");
+				for(i=0;i<lC[lCtop];i++)strcat(tmp,"sjh");
 				strcat(tmp,"\n L1_");
-				for(i=0;i<lC[lCtop];i++)strcat(tmp,"fuck");
+				for(i=0;i<lC[lCtop];i++)strcat(tmp,"sjh");
 				strcat(tmp,":\n iconst_1 \n L2_");
-				for(i=0;i<lC[lCtop];i++)strcat(tmp,"fuck");
+				for(i=0;i<lC[lCtop];i++)strcat(tmp,"sjh");
 				strcat(tmp,":\n");
 				
 				lCtop--;
@@ -1235,41 +1235,41 @@ factor			: var_ref
 						//fprintf(out,"typ=%d  %s\n",glo->type->type,glo->name);fflush(out);
 						if(glo->category==CONSTANT_t)
 						{
-						if(glo->type->type==INTEGER_t)
- 						{
- 							sprintf(ExprStack[StackCount],"ldc %d\n",glo->type->value.integerVal);
- 							//strcat(ExprStack[StackCount],"ineg\n");
-																	
- 						}
- 						else if(glo->type->type==BOOLEAN_t)
- 						{
- 							sprintf(ExprStack[StackCount],"ldc %d\n",glo->type->value.booleanVal);
-							//strcat(ExprStack[StackCount],"ineg\n");									
- 						}
- 						else if(glo->type->type==REAL_t)
- 						{
-							sprintf(ExprStack[StackCount],"ldc %f\n",glo->type->value.realVal);
-							//strcat(ExprStack[StackCount],"fneg\n");
- 						}							
+							if(glo->type->type==INTEGER_t)
+	 						{
+	 							sprintf(ExprStack[StackCount],"ldc %d\n",glo->type->value.integerVal);
+	 							//strcat(ExprStack[StackCount],"ineg\n");
+																		
+	 						}
+	 						else if(glo->type->type==BOOLEAN_t)
+	 						{
+	 							sprintf(ExprStack[StackCount],"ldc %d\n",glo->type->value.booleanVal);
+								//strcat(ExprStack[StackCount],"ineg\n");									
+	 						}
+	 						else if(glo->type->type==REAL_t)
+	 						{
+								sprintf(ExprStack[StackCount],"ldc %f\n",glo->type->value.realVal);
+								//strcat(ExprStack[StackCount],"fneg\n");
+	 						}							
 						}
 						else
 						{
-						if(glo->type->type==INTEGER_t)
- 						{
- 							sprintf(ExprStack[StackCount],"getstatic %s/%s I\n",fileName,glo->name);
- 							
+							if(glo->type->type==INTEGER_t)
+	 						{
+	 							sprintf(ExprStack[StackCount],"getstatic %s/%s I\n",fileName,glo->name);
+	 							
+																		
+	 						}
+	 						else if(glo->type->type==BOOLEAN_t)
+	 						{
+	 							sprintf(ExprStack[StackCount],"getstatic %s/%s I\n",fileName,glo->name);
 																	
- 						}
- 						else if(glo->type->type==BOOLEAN_t)
- 						{
- 							sprintf(ExprStack[StackCount],"getstatic %s/%s I\n",fileName,glo->name);
-																
- 						}
- 						else if(glo->type->type==REAL_t)
- 						{
-							sprintf(ExprStack[StackCount],"getstatic %s/%s F\n",fileName,glo->name);
- 						}			
- 						}					
+	 						}
+	 						else if(glo->type->type==REAL_t)
+	 						{
+								sprintf(ExprStack[StackCount],"getstatic %s/%s F\n",fileName,glo->name);
+	 						}			
+						}					
  					}
  					else
  					{
@@ -1298,8 +1298,7 @@ factor			: var_ref
  							{
 								sprintf(ExprStack[StackCount],"fload %d\n",shoot);
  																
- 							}
- 															
+ 							}								
 						}	
 					}
 					StackCount++;
@@ -1562,4 +1561,8 @@ void superfree(char** str)
 	char *tmp=*str;
 	free(tmp);
 	*str=0;
+}
+
+int yywrap(void){
+	return 1;
 }

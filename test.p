@@ -1,9 +1,12 @@
 test;
 
-var number:int;
-
-func(argv:int):int;
+func2(x,y:integer):integer;
 begin
-    argv1 := 1 + 2;
-    return argv1;
-end func
+	return x+y;
+end
+end func2
+
+begin
+	print func2(10,2,3);	
+end
+end test
