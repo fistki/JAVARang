@@ -57,7 +57,7 @@ identifier ({letter})({letter}|{digit})*
 ":"				{ token(':'); return MK_COLON; }
 ")"				{ token(')'); return MK_RPAREN; }
 "("				{ token('('); return MK_LPAREN; }
-"["				{ token('['); return MK_LB;}
+"["				{ token('['); return MK_LB; }
 "]"				{ token(']'); return MK_RB; }
 
 "+"				{ token('+'); return OP_ADD; }
@@ -71,7 +71,7 @@ identifier ({letter})({letter}|{digit})*
 "<>"				{ token("<>"); return OP_NE; }
 ">="				{ token(">="); return OP_GE; }
 ">"				{ token('>'); return OP_GT; }
-"=="				{ token("=="); return OP_EQ; }
+"=="				{ token('=='); return OP_EQ; }
 "and"				{ token("and"); return OP_AND; }
 "or"				{ token("or"); return OP_OR; }
 "not"				{ token("not"); return OP_NOT; }
@@ -84,7 +84,6 @@ identifier ({letter})({letter}|{digit})*
 "else"				{ token("KWelse"); return ELSE; }
 "end"				{ token("KWend"); return END; }
 "false"				{ token("KWfalse"); return FALSE; }
-"for"				{ token("KWfor"); return FOR; }
 "integer"			{ token("KWinteger"); return INTEGER; }
 "if"				{ token("KWif"); return IF; }
 "of"				{ token("KWof"); return OF; }
@@ -99,7 +98,7 @@ identifier ({letter})({letter}|{digit})*
 "var"				{ token("KWvar"); return VAR; }
 "while"				{ token("KWwhile"); return WHILE; }
 
-{identifier}			{ 
+{identifier}	{ 
 				  char actualID[33];
 				  memset( actualID, 0, sizeof(actualID) );
 				  strncpy( actualID, yytext, 32 );

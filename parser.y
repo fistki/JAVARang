@@ -44,6 +44,7 @@ int dumpEStack(const char*);
 void superfree(char**);
 %}
 
+
 %union {
 	int intVal;
 	float realVal;
@@ -55,12 +56,12 @@ void superfree(char**);
 	struct PType *ptype;
 	struct param_sem *par;
 	struct expr_sem *exprs;
-	/*struct var_ref_sem *varRef; */
+
 	struct expr_sem_node *exprNode;
 };
 
 /* tokens */
-%token ARRAY BEG BOOLEAN DEF DO ELSE END FALSE FOR INTEGER IF OF PRINT READ REAL RETURN STRING THEN TO TRUE VAR WHILE
+%token ARRAY BEG BOOLEAN DEF DO ELSE END FALSE INTEGER IF OF PRINT READ REAL RETURN STRING THEN TO TRUE VAR WHILE
 %token OP_ADD OP_SUB OP_MUL OP_DIV OP_MOD OP_ASSIGN OP_EQ OP_NE OP_GT OP_LT OP_GE OP_LE OP_AND OP_OR OP_NOT
 %token MK_COMMA MK_COLON MK_SEMICOLON MK_LPAREN MK_RPAREN MK_LB MK_RB
 
@@ -75,32 +76,32 @@ void superfree(char**);
 %type<ptype> type scalar_type array_type ret_type
 %type<par> param param_list opt_param_list
 %type<exprs> var_ref boolean_expr boolean_term boolean_factor relop_expr expr term factor boolean_expr_list opt_boolean_expr_list
-%type<intVal> dim mul_op add_op rel_op array_index loop_param
+%type<intVal> dim mul_op add_op rel_op array_index
 
 /* start symbol */
 %start program
-%%
+%% 
 
 program			: ID
-			{
-				char b[30];
-				strcat(b,fileName);
-				strcat(b,".j");
-				out=fopen(b,"w");
-		//	if(ExprStack[StackCount]==NULL)ExprStack[StackCount]=(char*)malloc(sizeof(char)*10000);
-			  struct PType *pType = createPType( VOID_t );
-			  struct SymNode *newNode = createProgramNode( $1, scope, pType );
-			  insertTab( symbolTable, newNode );
-			  
-			  if( strcmp(fileName,$1) ) {
-				fprintf( stdout, "<Error> found in Line %d: program beginning ID inconsist with file name  \n", linenum );
-			  }
-			  fprintf(out,"; %s.j \n",$1);
-			  fprintf(out,".class public %s \n",$1);
-			  fprintf(out,".super java/lang/Object\n");
-			  fprintf(out,".field public static _sc Ljava/util/Scanner;\n");
+				{
+					char b[30]="";
+					strcat(b,fileName);
+					strcat(b,".j");
+					out=fopen(b,"w");
+			//	if(ExprStack[StackCount]==NULL)ExprStack[StackCount]=(char*)malloc(sizeof(char)*10000);
+				struct PType *pType = createPType( VOID_t );
+				struct SymNode *newNode = createProgramNode( $1, scope, pType );
+				insertTab( symbolTable, newNode );
+				
+				if( strcmp(fileName,$1) ) {
+					fprintf( stdout, "<Error> found in Line %d: program beginning ID inconsist with file name  \n", linenum );
+				}
+				fprintf(out,"; %s.j \n",$1);
+				fprintf(out,".class public %s \n",$1);
+				fprintf(out,".super java/lang/Object\n");
+				fprintf(out,".field public static _sc Ljava/util/Scanner;\n");
 
-			}
+				}
 			  MK_SEMICOLON
 			  program_body
 			  END ID
@@ -118,16 +119,17 @@ program			: ID
 			;
 
 program_body		: opt_decl_list opt_func_decl_list {
-fprintf(out,".method public static main([Ljava/lang/String;)V\n\
-.limit stack 100\n\
-.limit locals 100 \n\
-new java/util/Scanner \n\
-dup \n\
-getstatic java/lang/System/in Ljava/io/InputStream; \n\
-invokespecial java/util/Scanner/<init>(Ljava/io/InputStream;)V \n\
-putstatic %s/_sc Ljava/util/Scanner; \n ",fileName);
+						fprintf(out,".method public static main([Ljava/lang/String;)V\n\
+						.limit stack 100\n\
+						.limit locals 100 \n\
+						new java/util/Scanner \n\
+						dup \n\
+						getstatic java/lang/System/in Ljava/io/InputStream; \n\
+						invokespecial java/util/Scanner/<init>(Ljava/io/InputStream;)V \n\
+						putstatic %s/_sc Ljava/util/Scanner; \n ",fileName);
 								
-								}compound_stmt
+								}
+								compound_stmt
 			;
 
 
@@ -167,7 +169,6 @@ decl			: VAR id_list MK_COLON scalar_type MK_SEMICOLON       /* scalar type decl
 						ItemScope[LocalCount]=scope;
 						ItemType[LocalCount]=$4->type;
 						strcpy(LocalItem[LocalCount],ptr->value);
-						//fprintf(stdout,"[%d\t%s]\n",LocalCount,LocalItem[LocalCount-1]);
 					}
 				}
 			  }
@@ -255,26 +256,19 @@ literal_const		: INT_CONST
 
 opt_func_decl_list	: func_decl_list
 			| /* epsilon */
-			;
+			; 
 
 func_decl_list		: func_decl_list func_decl
 			| func_decl
 			;
 
 func_decl		: ID MK_LPAREN opt_param_list
-			{
-			  // check and insert parameters into symbol table
-			  paramError = insertParamIntoSymTable( symbolTable, $3, scope+1 );
-			 //  fprintf(out,"");
-				// struct idNode_sem*ptr;
-				// for(ptr=$1;ptr->next!=NULL;ptr=ptr->next)
-				// {
-				// 	LocalItem[++LocalCount]=(char*)calloc(40,sizeof(char));
-				// 	ItemScope[LocalCount]=scope;
-				// }
-				
-			}
-			  MK_RPAREN ret_type 
+					{
+					// check and insert parameters into symbol table
+					paramError = insertParamIntoSymTable( symbolTable, $3, scope+1 );
+					
+					}
+			  	  MK_RPAREN ret_type 
 			{
 			  // check and insert function into symbol table
 			  if( paramError == __TRUE ) {
@@ -312,31 +306,26 @@ func_decl		: ID MK_LPAREN opt_param_list
 				char rettp;
 				switch($6->type)
 				{
-							case INTEGER_t: fprintf(out,"I\n"); LocalCount = 0; break;
-							case BOOLEAN_t: fprintf(out,"Z\n"); LocalCount = 0; break;
-							case REAL_t:    fprintf(out,"F\n"); LocalCount = 0; break;
-							case VOID_t:	fprintf(out,"V\n"); LocalCount = 0; break;				
-				
+					case INTEGER_t: fprintf(out,"I\n"); break;
+					case BOOLEAN_t: fprintf(out,"Z\n"); break;
+					case REAL_t:    fprintf(out,"F\n"); break;
+					case VOID_t:	fprintf(out,"V\n"); break;			
 				}
 			  
 			   fprintf(out,".limit stack 100\n");
 			   fprintf(out,".limit locals 100\n"); 
- 
 			}
 			  MK_SEMICOLON
 			  compound_stmt
 			  END ID
 			{
-			  if( strcmp($1,$11) ) {
-				fprintf( stdout, "<Error> found in Line %d: the end of the functionName mismatch  \n", linenum );
-			  }
 			  funcReturn = 0;
 			  	switch($6->type)
 				{
-							case INTEGER_t: fprintf(out,"ireturn \n"); break;
-							case BOOLEAN_t: fprintf(out,"ireturn \n"); break;
-							case REAL_t:    fprintf(out,"freturn \n"); break;
-							case VOID_t:	fprintf(out,"return \n"); break;				
+							case INTEGER_t: fprintf(out,"ireturn \n"); LocalCount = 0; break;
+							case BOOLEAN_t: fprintf(out,"ireturn \n"); LocalCount = 0; break;
+							case REAL_t:    fprintf(out,"freturn \n"); LocalCount = 0; break;
+							case VOID_t:	fprintf(out,"return \n"); LocalCount = 0; break;				
 				
 				}
 			  fprintf(out,".end method \n");
@@ -355,10 +344,7 @@ param_list		: param_list MK_SEMICOLON param
 			| param { $$ = $1; }
 			;
 
-
-param			: id_list MK_COLON type { $$ = createParam( $1, $3 ); 
-
-					}
+param		: id_list MK_COLON type { $$ = createParam( $1, $3 );  }
 			;
 
 id_list			: id_list MK_COMMA ID
@@ -369,12 +355,13 @@ id_list			: id_list MK_COMMA ID
 			| ID { $$ = createIdList($1); }
 			;
 
-ret_type		: MK_COLON scalar_type { $$ = $2; }
+ret_type	: MK_COLON scalar_type { $$ = $2; }
 			| /* epsilon */ { $$ = createPType( VOID_t ); }
-
-type			: scalar_type { $$ = $1; }
-			| array_type { $$ = $1; }
 			;
+
+type	: scalar_type { $$ = $1; }
+		| array_type { $$ = $1; }
+		;
 
 scalar_type		: INTEGER { $$ = createPType( INTEGER_t ); }
 			| REAL { $$ = createPType( REAL_t ); }
@@ -398,7 +385,6 @@ stmt			: compound_stmt
 			| simple_stmt
 			| cond_stmt
 			| while_stmt
-			| for_stmt
 			| return_stmt
 			| proc_call_stmt
 			;
@@ -443,110 +429,17 @@ simple_stmt		: var_ref OP_ASSIGN boolean_expr MK_SEMICOLON
 				verifyAssignmentTypeMatch( $1, $3 );
 				fprintf(out,"%s",ExprStack[--StackCount]);
 				superfree(&ExprStack[StackCount]);
-			 /* if($3->varRef!=0)
-			  {
-			  //fprintf(out,"[haha]\n");fflush(out);
-			  		struct expr_sem*v=$3;
-					int shoot=0;
-					struct SymNode*glo=0;
-					if(glo=lookupSymbol(symbolTable, v->varRef->id, 0, __TRUE ),glo!=0)
-					{
-						//fprintf(out,"typ=%d  %s\n",glo->type->type,glo->name);fflush(out);
-						if(glo->type->type==INTEGER_t)
- 						{
- 							fprintf(out,"getstatic %s/%s I\n",fileName,glo->name);
-																	
- 						}
- 						else if(glo->type->type==BOOLEAN_t)
- 						{
- 							fprintf(out,"getstatic %s/%s I\n",fileName,glo->name);
-																
- 						}
- 						else if(glo->type->type==REAL_t)
- 						{
-							fprintf(out,"getstatic %s/%s F\n",fileName,glo->name);
- 						}								
- 					}
- 					else
- 					{
- 						for(i=LocalCount;i>0;i--)
- 						{
- 								
- 								if(v->varRef!=0 && v->varRef->id!=0 && ItemScope[i]<=scope && strcmp(v->varRef->id,LocalItem[i])==0)
- 								{
- 									shoot=i;
- 									break;
- 								}
- 						}
- 						
- 						if(shoot!=0)
- 						{
- 							if(v->pType->type==INTEGER_t)
- 							{
- 								fprintf(out,"iload %d\n",shoot);
- 							}	
- 								else if(v->pType->type==BOOLEAN_t)
- 							{
- 								fprintf(out,"iload %d\n",shoot);
-																
- 							}
- 							else if(v->pType->type==REAL_t)
- 							{
-									fprintf(out,"fload %d\n",shoot);
- 																
- 							}			
-						}	
-					}
 
-			  
-			  }
-			  else
-			  {
 
-														//fprintf(out,";[const]\n");fflush(out);
-						if($3->pType->type==STRING_t)
-						{
-															//fprintf(stdout,"[%d]",$2->pType->type);
-							fprintf(out,"ldc \"%s\"\n",$3->pType->strv);
-							//fprintf(out,"invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V \n");
-						}
-						else if($3->pType->type==INTEGER_t)
-						{
-							fprintf(out,"ldc %d\n",$3->pType->value);
-							//fprintf(out,"invokevirtual java/io/PrintStream/print(I)V \n");	
-						}
-						else if($3->pType->type==BOOLEAN_t)
-						{
-							if($3->pType->value.booleanVal ==__TRUE)
-							{
-								fprintf(out,"iconst_1\n");
-							}
-							else
-							{
-								fprintf(out,"iconst_0\n");
-							}
-							//fprintf(out,"ldc %d\n",$2->pType->value);
-							//fprintf(out,"invokevirtual java/io/PrintStream/print(Z)V \n");
-						}
-						else if($3->pType->type==REAL_t)
- 						{
-							fprintf(out,"ldc %f\n",$3->pType->value);
- 							//fprintf(out,"invokevirtual java/io/PrintStream/print(F)V \n");
- 						}
-			  }*/
-			  
-			  
-			  
 					struct expr_sem*v=$1;
 					int shoot=-1;
  					for(i=LocalCount;i>=0;i--)
  					{
- 							if( LocalItem[i]!=0 &&ItemScope[i]<=scope && strcmp(v->varRef->id,LocalItem[i])==0)
- 							{
- 								shoot=i;
- 								break;
- 							}
-
+						if( LocalItem[i]!=0 &&ItemScope[i]<=scope && strcmp(v->varRef->id,LocalItem[i])==0)
+						{
+							shoot=i;
+							break;
+						}
  					}
  					if(shoot!=-1)
  					{
@@ -564,7 +457,6 @@ simple_stmt		: var_ref OP_ASSIGN boolean_expr MK_SEMICOLON
 								fprintf(out,"fstore %d\n",shoot);
  															
  						}
- 															//fprintf(out,";[finish]\n");fflush(out);
 					}	
 					else
 					{
@@ -590,9 +482,8 @@ simple_stmt		: var_ref OP_ASSIGN boolean_expr MK_SEMICOLON
 					}										
 				//	superfree(&ExprStack[--StackCount]);
 			}
-			| PRINT boolean_expr MK_SEMICOLON { verifyScalarExpr( $2, "print" ); 
-												//struct expr_sem *expr=$2;
-												//fprintf(out,";[vref= %s]",)
+			| PRINT boolean_expr MK_SEMICOLON { 
+												verifyScalarExpr( $2, "print" ); 
 												dumpEStack("print");
 												fprintf(out,"getstatic java/lang/System/out Ljava/io/PrintStream; \n");
 												fprintf(out,"%s",ExprStack[--StackCount]);
@@ -609,92 +500,6 @@ simple_stmt		: var_ref OP_ASSIGN boolean_expr MK_SEMICOLON
 														fprintf(out,"invokevirtual java/io/PrintStream/print(F)V \n");	break;
 							
 												}
-													/*if($2->varRef==NULL)
-													{
-														//fprintf(out,";[const]\n");fflush(out);
-														if($2->pType->type==STRING_t)
-														{
-															//fprintf(stdout,"[%d]",$2->pType->type);
-															fprintf(out,"ldc \"%s\"\n",$2->pType->strv);
-															fprintf(out,"invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V \n");
-														}
-														else if($2->pType->type==INTEGER_t)
-														{
-															fprintf(out,"ldc %d\n",$2->pType->value);
-															fprintf(out,"invokevirtual java/io/PrintStream/print(I)V \n");	
-														}
-														else if($2->pType->type==BOOLEAN_t)
-														{
-															fprintf(out,"ldc %d\n",$2->pType->value);
-															fprintf(out,"invokevirtual java/io/PrintStream/print(Z)V \n");
-														}
-														else if($2->pType->type==REAL_t)
- 														{
-															fprintf(out,"ldc %f\n",$2->pType->value);
- 															fprintf(out,"invokevirtual java/io/PrintStream/print(F)V \n");
- 														}
-													}
-													
-													
-													else
-													{
-			
-														//fprintf(out,";[local]\n");fflush(out);
-														int shoot=0;
- 														for(i=LocalCount;i>0;i--)
- 														{
- 															if(ItemScope[i]<=scope && strcmp($2->varRef->id,LocalItem[i])==0)
- 															{
- 																shoot=i;
- 																break;
- 															}	
- 															else
- 															{
- 																//fprintf(out,";[not match! %s\t%s]\n",$2->varRef->id,LocalItem[i]);fflush(out);
- 															}
- 														}
- 														if(shoot!=0)
- 														{
- 															if($2->pType->type==INTEGER_t)
- 															{
- 																fprintf(out,"iload %d\n",shoot);
- 																fprintf(out,"invokevirtual java/io/PrintStream/print(I)V \n");
- 															}
- 															else if($2->pType->type==BOOLEAN_t)
- 															{
- 																fprintf(out,"iload %d\n",shoot);
-																fprintf(out,"invokevirtual java/io/PrintStream/print(Z)V \n");
- 															}
- 															else if($2->pType->type==REAL_t)
- 															{
-																fprintf(out,"fload %d\n",shoot);
- 																fprintf(out,"invokevirtual java/io/PrintStream/print(F)V \n");
- 															}
- 															//fprintf(out,";[finish]\n");fflush(out);
-														}	
-														else
-														{
-															struct SymNode*glo;
-															if(glo=lookupSymbol(symbolTable, $2->varRef->id, 0, __TRUE ),glo!=0)
-															{
-																if(glo->type->type==INTEGER_t)
- 																{
- 																	fprintf(out,"getstatic %s/%s I\n",fileName,glo->name);
- 																	fprintf(out,"invokevirtual java/io/PrintStream/print(I)V \n");
- 																}
- 																else if(glo->type->type==BOOLEAN_t)
- 																{
- 																	fprintf(out,"getstatic %s/%s I\n",fileName,glo->name);
-																	fprintf(out,"invokevirtual java/io/PrintStream/print(Z)V \n");
- 																}
- 																else if(glo->type->type==REAL_t)
- 																{
-																	fprintf(out,"getstatic %s/%s F\n",fileName,glo->name);
- 																	fprintf(out,"invokevirtual java/io/PrintStream/print(F)V \n");
- 																}
-															}
-														}											
-													}*/
 												
 												}
  			| READ boolean_expr MK_SEMICOLON  { verifyScalarExpr( $2, "read" ); 
@@ -803,28 +608,28 @@ proc_call_stmt		: ID MK_LPAREN opt_boolean_expr_list MK_RPAREN MK_SEMICOLON
 			}
 			;
 
-cond_stmt		: IF condition THEN 
-			 opt_stmt_list
-			  ELSE
-			  {
-			  	fprintf(out,"goto Lexit_%d\n",lC[lCtop]);
-			  	fprintf(out,"Lfalse_%d:\n",lC[lCtop]);
-			  }
-			  opt_stmt_list
-			  END IF
-			  {
-			  		fprintf(out,"Lexit_%d:\n",lC[lCtop]);
-			  		lCtop--;
-			  }
-			| IF condition THEN
-			 opt_stmt_list END IF
-			{								  		
-		  		fprintf(out,"Lfalse_%d:\n",lC[lCtop]);
-			  			lCtop--;	  		
-			}
-			;
+cond_stmt	: 	IF condition THEN 
+				opt_stmt_list
+				ELSE
+				{
+					fprintf(out,"goto Lexit_%d\n",lC[lCtop]);
+					fprintf(out,"Lfalse_%d:\n",lC[lCtop]);
+				}
+				opt_stmt_list
+				END IF
+				{
+						fprintf(out,"Lexit_%d:\n",lC[lCtop]);
+						lCtop--;
+				}
+				| IF condition THEN
+				opt_stmt_list END IF
+				{								  		
+					fprintf(out,"Lfalse_%d:\n",lC[lCtop]);
+							lCtop--;	  		
+				}
+				;
 
-condition		: boolean_expr { verifyBooleanExpr( $1, "if" ); 
+condition	: boolean_expr { verifyBooleanExpr( $1, "if" ); 
 								lC[++lCtop]=lCount++;
 								fprintf(out,"%s",ExprStack[--StackCount]);
 								fprintf(out,"ifeq Lfalse_%d\n",lC[lCtop]);								
@@ -832,11 +637,11 @@ condition		: boolean_expr { verifyBooleanExpr( $1, "if" );
 								} 
 			;
 
-while_stmt		: WHILE	 condition_while DO
-			  opt_stmt_list{
-			  		fprintf(out,"goto Lbegin_%d \n Lexit_%d:\n",lC[lCtop],lC[lCtop]);
-			  		lCtop--;
-			  		}
+while_stmt	: WHILE	 condition_while DO
+			  opt_stmt_list	{
+			  					fprintf(out,"goto Lbegin_%d \n Lexit_%d:\n",lC[lCtop],lC[lCtop]);
+			  					lCtop--;
+			  				}
 			  END DO
 			;
 
@@ -847,91 +652,6 @@ condition_while		: boolean_expr { verifyBooleanExpr( $1, "while" );
 									superfree(&ExprStack[StackCount]);
 									fprintf(out,"ifeq Lexit_%d\n",lC[lCtop]);
 									} 
-			;
-
-for_stmt		: FOR ID 
-			{ 
-			  insertLoopVarIntoTable( symbolTable, $2 );
-			  LocalItem[++LocalCount]=(char*)calloc(40,sizeof(char));
-			  ItemScope[LocalCount]=scope;
-			  strcpy(LocalItem[LocalCount],$2);
-			}
-			  OP_ASSIGN loop_param TO loop_param
-			{
-			  verifyLoopParam( $5, $7 );
-			  lC[++lCtop]=lCount++;
-			  fprintf(out,"ldc %d\n",$5);
-			  int shoot=-1;
-			   			for(i=LocalCount;i>=0;i--)
- 						{
- 								
- 								if( LocalItem[i]!=0 && ItemScope[i]==scope && strcmp($2,LocalItem[i])==0)
- 								{
- 									shoot=i;
- 									break;
- 								}
- 						}
- 						
- 						if(shoot!=-1)
- 						{
-
- 								fprintf(out,"istore %d\n",shoot);														
-						}
-				//lC[lCtop]
-				fprintf(out,"Lbegin_%d:\n",lC[lCtop]);
-						if(shoot!=-1)
- 						{
-
- 								fprintf(out,"iload %d\n",shoot); 															
-						}
-/*
-	ifle Ltrue_4 
-	iconst_0 
-	goto Lfalse_4 
-Ltrue_4: 
-	iconst_1 
-Lfalse_4: 
-	ifeq Lexit_3 
-*/
-				fprintf(out,"i2f\n");
-				fprintf(out,"ldc %d\n",$7);
-				fprintf(out,"i2f\n");
-				fprintf(out,"fcmpl\n");
-			  	fprintf(out,"ifle Ltrue_%d\n",lC[lCtop]);
-			  	fprintf(out,"iconst_0 \n");
-			  	fprintf(out,"goto Lfalse_%d\n",lC[lCtop]);
-			  	fprintf(out,"Ltrue_%d:\n",lC[lCtop]);
-			  	fprintf(out,"iconst_1\n",lC[lCtop]);
-			  	fprintf(out,"Lfalse_%d:\n",lC[lCtop]);
-			  	fprintf(out,"ifeq Lexit_%d\n",lC[lCtop]);
-			}
-			  DO
-			  opt_stmt_list
-			  END DO
-			{
-			  popLoopVar( symbolTable );
-			  			int shoot=-1;
-			  			  for(i=LocalCount;i>=0;i--)
- 						{
- 								
- 								if( LocalItem[i]!=0 &&ItemScope[i]==scope && strcmp($2,LocalItem[i])==0)
- 								{
- 									shoot=i;
- 									break;
- 								}
- 						}
- 						if(shoot!=-1)fprintf(out,"iload %d\n",shoot);
- 						fprintf(out,"ldc 1\n");
- 						fprintf(out,"iadd\n");
- 						fprintf(out,"istore %d\n",shoot);
- 						fprintf(out,"goto Lbegin_%d\n",lC[lCtop]);
- 						fprintf(out,"Lexit_%d:\n",lC[lCtop]);
- 						lCtop--;
-
-			}
-			;
-
-loop_param		: INT_CONST { $$ = $1; }
 			;
 
 return_stmt		: RETURN boolean_expr MK_SEMICOLON
@@ -1060,13 +780,10 @@ relop_expr		: expr rel_op expr
 				}
 				lC[++lCtop]=lCount++;
 				strcat(tmp," L1_");
-				for(i=0;i<lC[lCtop];i++)strcat(tmp,"sjh");
 				strcat(tmp,"\n iconst_0 \n goto L2_");
-				for(i=0;i<lC[lCtop];i++)strcat(tmp,"sjh");
 				strcat(tmp,"\n L1_");
-				for(i=0;i<lC[lCtop];i++)strcat(tmp,"sjh");
 				strcat(tmp,":\n iconst_1 \n L2_");
-				for(i=0;i<lC[lCtop];i++)strcat(tmp,"sjh");
+				//for(i=0;i<lC[lCtop];i++)strcat(tmp,"");
 				strcat(tmp,":\n");
 				
 				lCtop--;
@@ -1074,7 +791,6 @@ relop_expr		: expr rel_op expr
 				superfree(&ExprStack[--StackCount]);
 				ExprStack[StackCount]=tmp;
 				StackCount++;
-			  
 			}
 			| expr { $$ = $1; }
 			;
@@ -1162,14 +878,12 @@ term			: term mul_op factor
 				{
 					ChangeType=3;
 				}
-			//	if(StackCount<2)
 				strcat(tmp,ExprStack[StackCount-2]);
 				if(ChangeType==1)strcat(tmp,"i2f\n");
 				strcat(tmp,ExprStack[StackCount-1]);
 				if(ChangeType==2)strcat(tmp,"i2f\n");
 				if(ChangeType==0)
 				{
-				 //fprintf(out,"[mul!!]\n");
 					switch($2)
 					{
 						case MOD_t:
@@ -1219,72 +933,62 @@ factor			: var_ref
 			  verifyExistence( symbolTable, $1, scope, __FALSE );
 			  $$ = $1;
 			  $$->beginningOp = NONE_t;
-			 // fprintf(out,"[factor %d %s]\n",$$->pType->type,$$->varRef->id);
 			  		struct expr_sem*v=$1;
 					int shoot=-1;
 					struct SymNode*glo=0;
-					//fprintf(out,";[expr]\n");
 					if(ExprStack[StackCount]==NULL)
 					{
 						ExprStack[StackCount]=(char*)calloc(1000,sizeof(char));
-						//for(int i=0;i<1000;i++)tmp[i]=0;
 					}
 					if(glo=lookupSymbol(symbolTable, v->varRef->id, 0, __TRUE ),glo!=0)
 					{
-						//fprintf(out,"typ=%d  %s\n",glo->type->type,glo->name);fflush(out);
-						//fprintf(out,"typ=%d  %s\n",glo->type->type,glo->name);fflush(out);
 						if(glo->category==CONSTANT_t)
 						{
-							if(glo->type->type==INTEGER_t)
-	 						{
-	 							sprintf(ExprStack[StackCount],"ldc %d\n",glo->type->value.integerVal);
-	 							//strcat(ExprStack[StackCount],"ineg\n");
-																		
-	 						}
-	 						else if(glo->type->type==BOOLEAN_t)
-	 						{
-	 							sprintf(ExprStack[StackCount],"ldc %d\n",glo->type->value.booleanVal);
-								//strcat(ExprStack[StackCount],"ineg\n");									
-	 						}
-	 						else if(glo->type->type==REAL_t)
-	 						{
-								sprintf(ExprStack[StackCount],"ldc %f\n",glo->type->value.realVal);
-								//strcat(ExprStack[StackCount],"fneg\n");
-	 						}							
+						if(glo->type->type==INTEGER_t)
+ 						{
+ 							sprintf(ExprStack[StackCount],"ldc %d\n",glo->type->value.integerVal);
+																	
+ 						}
+ 						else if(glo->type->type==BOOLEAN_t)
+ 						{
+ 							sprintf(ExprStack[StackCount],"ldc %d\n",glo->type->value.booleanVal);					
+ 						}
+ 						else if(glo->type->type==REAL_t)
+ 						{
+							sprintf(ExprStack[StackCount],"ldc %f\n",glo->type->value.realVal);
+ 						}							
 						}
 						else
 						{
 							if(glo->type->type==INTEGER_t)
-	 						{
-	 							sprintf(ExprStack[StackCount],"getstatic %s/%s I\n",fileName,glo->name);
-	 							
+							{
+								sprintf(ExprStack[StackCount],"getstatic %s/%s I\n",fileName,glo->name);
+								
 																		
-	 						}
-	 						else if(glo->type->type==BOOLEAN_t)
-	 						{
-	 							sprintf(ExprStack[StackCount],"getstatic %s/%s I\n",fileName,glo->name);
+							}
+							else if(glo->type->type==BOOLEAN_t)
+							{
+								sprintf(ExprStack[StackCount],"getstatic %s/%s I\n",fileName,glo->name);
 																	
-	 						}
-	 						else if(glo->type->type==REAL_t)
-	 						{
+							}
+							else if(glo->type->type==REAL_t)
+							{
 								sprintf(ExprStack[StackCount],"getstatic %s/%s F\n",fileName,glo->name);
-	 						}			
-						}					
+							}			
+ 						}					
  					}
  					else
  					{
  						for(i=LocalCount;i>=0;i--)
  						{
- 								
- 								if( LocalItem[i]!=0 &&v->varRef!=0 && v->varRef->id!=0 && ItemScope[i]<=scope && strcmp(v->varRef->id,LocalItem[i])==0)
- 								{
- 									shoot=i;
- 									break;
- 								}
+							if( LocalItem[i]!=0 &&v->varRef!=0 && v->varRef->id!=0 && ItemScope[i]<=scope && strcmp(v->varRef->id,LocalItem[i])==0)
+							{
+								shoot=i;
+								break;
+							}
  						}
  						
- 						if(shoot!=-1)
- 						{
+ 						if(shoot!=-1) {
  							if(v->pType->type==INTEGER_t)
  							{
  								sprintf(ExprStack[StackCount],"iload %d\n",shoot);
@@ -1292,17 +996,15 @@ factor			: var_ref
  							else if(v->pType->type==BOOLEAN_t)
  							{
  								sprintf(ExprStack[StackCount],"iload %d\n",shoot);
-																
  							}
  							else if(v->pType->type==REAL_t)
  							{
 								sprintf(ExprStack[StackCount],"fload %d\n",shoot);
- 																
- 							}								
+ 							}
 						}	
 					}
 					StackCount++;
-					 dumpEStack("expr");
+					dumpEStack("expr");
 			}
 			| OP_SUB var_ref
 			{
@@ -1311,13 +1013,11 @@ factor			: var_ref
 			  $$ = $2;
 			  $$->beginningOp = SUB_t;
 					if(ExprStack[StackCount]==NULL)ExprStack[StackCount]=(char*)calloc(1000,sizeof(char));
-					//if(ExprStack[StackCount+1]==NULL)ExprStack[StackCount+1]=(char*)malloc(sizeof(char)*100);
 			  		struct expr_sem*v=$2;
 					int shoot=-1;
 					struct SymNode*glo=0;
 					if(glo=lookupSymbol(symbolTable, v->varRef->id, 0, __TRUE ),glo!=0)
 					{
-						//fprintf(out,"typ=%d  %s\n",glo->type->type,glo->name);fflush(out);
 						if(glo->category==CONSTANT_t)
 						{
 						if(glo->type->type==INTEGER_t)
@@ -1563,6 +1263,6 @@ void superfree(char** str)
 	*str=0;
 }
 
-int yywrap(void){
-	return 1;
+void yywrap() {
+
 }

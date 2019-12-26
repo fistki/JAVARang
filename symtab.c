@@ -19,7 +19,7 @@ int hashFunc( const char *str )
 	int result = 0;
 	int i;
 	for( i=0 ; i<strlen(str) ; i++ ) {
-		i += str[i];
+		result += str[i];
 	}
 
 	return (result % HASHBUNCH);

@@ -46,47 +46,46 @@
      ELSE = 263,
      END = 264,
      FALSE = 265,
-     FOR = 266,
-     INTEGER = 267,
-     IF = 268,
-     OF = 269,
-     PRINT = 270,
-     READ = 271,
-     REAL = 272,
-     RETURN = 273,
-     STRING = 274,
-     THEN = 275,
-     TO = 276,
-     TRUE = 277,
-     VAR = 278,
-     WHILE = 279,
-     OP_ADD = 280,
-     OP_SUB = 281,
-     OP_MUL = 282,
-     OP_DIV = 283,
-     OP_MOD = 284,
-     OP_ASSIGN = 285,
-     OP_EQ = 286,
-     OP_NE = 287,
-     OP_GT = 288,
-     OP_LT = 289,
-     OP_GE = 290,
-     OP_LE = 291,
-     OP_AND = 292,
-     OP_OR = 293,
-     OP_NOT = 294,
-     MK_COMMA = 295,
-     MK_COLON = 296,
-     MK_SEMICOLON = 297,
-     MK_LPAREN = 298,
-     MK_RPAREN = 299,
-     MK_LB = 300,
-     MK_RB = 301,
-     ID = 302,
-     INT_CONST = 303,
-     FLOAT_CONST = 304,
-     SCIENTIFIC = 305,
-     STR_CONST = 306
+     INTEGER = 266,
+     IF = 267,
+     OF = 268,
+     PRINT = 269,
+     READ = 270,
+     REAL = 271,
+     RETURN = 272,
+     STRING = 273,
+     THEN = 274,
+     TO = 275,
+     TRUE = 276,
+     VAR = 277,
+     WHILE = 278,
+     OP_ADD = 279,
+     OP_SUB = 280,
+     OP_MUL = 281,
+     OP_DIV = 282,
+     OP_MOD = 283,
+     OP_ASSIGN = 284,
+     OP_EQ = 285,
+     OP_NE = 286,
+     OP_GT = 287,
+     OP_LT = 288,
+     OP_GE = 289,
+     OP_LE = 290,
+     OP_AND = 291,
+     OP_OR = 292,
+     OP_NOT = 293,
+     MK_COMMA = 294,
+     MK_COLON = 295,
+     MK_SEMICOLON = 296,
+     MK_LPAREN = 297,
+     MK_RPAREN = 298,
+     MK_LB = 299,
+     MK_RB = 300,
+     ID = 301,
+     INT_CONST = 302,
+     FLOAT_CONST = 303,
+     SCIENTIFIC = 304,
+     STR_CONST = 305
    };
 #endif
 /* Tokens.  */
@@ -98,47 +97,46 @@
 #define ELSE 263
 #define END 264
 #define FALSE 265
-#define FOR 266
-#define INTEGER 267
-#define IF 268
-#define OF 269
-#define PRINT 270
-#define READ 271
-#define REAL 272
-#define RETURN 273
-#define STRING 274
-#define THEN 275
-#define TO 276
-#define TRUE 277
-#define VAR 278
-#define WHILE 279
-#define OP_ADD 280
-#define OP_SUB 281
-#define OP_MUL 282
-#define OP_DIV 283
-#define OP_MOD 284
-#define OP_ASSIGN 285
-#define OP_EQ 286
-#define OP_NE 287
-#define OP_GT 288
-#define OP_LT 289
-#define OP_GE 290
-#define OP_LE 291
-#define OP_AND 292
-#define OP_OR 293
-#define OP_NOT 294
-#define MK_COMMA 295
-#define MK_COLON 296
-#define MK_SEMICOLON 297
-#define MK_LPAREN 298
-#define MK_RPAREN 299
-#define MK_LB 300
-#define MK_RB 301
-#define ID 302
-#define INT_CONST 303
-#define FLOAT_CONST 304
-#define SCIENTIFIC 305
-#define STR_CONST 306
+#define INTEGER 266
+#define IF 267
+#define OF 268
+#define PRINT 269
+#define READ 270
+#define REAL 271
+#define RETURN 272
+#define STRING 273
+#define THEN 274
+#define TO 275
+#define TRUE 276
+#define VAR 277
+#define WHILE 278
+#define OP_ADD 279
+#define OP_SUB 280
+#define OP_MUL 281
+#define OP_DIV 282
+#define OP_MOD 283
+#define OP_ASSIGN 284
+#define OP_EQ 285
+#define OP_NE 286
+#define OP_GT 287
+#define OP_LT 288
+#define OP_GE 289
+#define OP_LE 290
+#define OP_AND 291
+#define OP_OR 292
+#define OP_NOT 293
+#define MK_COMMA 294
+#define MK_COLON 295
+#define MK_SEMICOLON 296
+#define MK_LPAREN 297
+#define MK_RPAREN 298
+#define MK_LB 299
+#define MK_RB 300
+#define ID 301
+#define INT_CONST 302
+#define FLOAT_CONST 303
+#define SCIENTIFIC 304
+#define STR_CONST 305
 
 
 
@@ -158,7 +156,7 @@ typedef union YYSTYPE
 	struct PType *ptype;
 	struct param_sem *par;
 	struct expr_sem *exprs;
-	/*struct var_ref_sem *varRef; */
+
 	struct expr_sem_node *exprNode;
 
 
